@@ -1,7 +1,6 @@
 resource "google_project" "this" {
   project_id      = var.project_id
   name            = var.project_name
-  org_id          = var.org_id
   billing_account = var.billing_account
   folder_id       = var.env_folder_id
 }
@@ -17,6 +16,13 @@ resource "google_project_service" "core" {
   project = google_project.this.project_id
   service = each.value
 }
+
+# Add a time delay to ensure APIs are fully propagated
+resource "time_sleep" "wait_for_apis" {
+  depends_on = [google_project_service.core]
+
+  create_duration = "60s"
+}
  
 data "terraform_remote_state" "bootstrap" {
   backend = "gcs"
@@ -30,6 +36,10 @@ data "terraform_remote_state" "bootstrap" {
 resource "google_compute_shared_vpc_service_project" "this" {
   host_project    = data.terraform_remote_state.bootstrap.outputs.network_hub_np_project_id
   service_project = google_project.this.project_id
+
+  depends_on = [
+    time_sleep.wait_for_apis
+  ]
 }
 
 module "gke_autopilot" {
@@ -53,7 +63,10 @@ module "gke_autopilot" {
     }
   ]
 
-  depends_on = [google_compute_shared_vpc_service_project.this]
+  depends_on = [
+    google_compute_shared_vpc_service_project.this,
+    time_sleep.wait_for_apis
+  ]
 }
 
 module "cloudsql_psc" {
@@ -70,7 +83,10 @@ module "cloudsql_psc" {
   availability_type = "ZONAL"
   database_name    = "app_database"
 
-  depends_on = [google_compute_shared_vpc_service_project.this]
+  depends_on = [
+    google_compute_shared_vpc_service_project.this,
+    time_sleep.wait_for_apis
+  ]
 }
 
 output "project_id" {
