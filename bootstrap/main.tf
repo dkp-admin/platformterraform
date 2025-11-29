@@ -5,7 +5,7 @@ locals {
   env_folder_display_name      = "env-tijarah"
 }
 
-# Parent Tijarah folder (already exists, id provided via tfvars)
+# Parent Tijarah folder (already exists, id. provided via tfvars)
 
 resource "google_folder" "platform" {
   display_name = local.platform_folder_display_name
