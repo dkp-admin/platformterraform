@@ -48,7 +48,7 @@ module "gke_autopilot" {
 
   master_authorized_networks = [
     {
-      cidr_block   = "0.0.0.0/0"  # tighten for real usage
+      cidr_block   = "0.0.0.0/0"  # tighten for real usage.
       display_name = "All networks"
     }
   ]
