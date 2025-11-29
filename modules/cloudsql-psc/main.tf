@@ -21,7 +21,7 @@ resource "google_sql_database_instance" "main" {
       enable_private_path_for_google_cloud_services = true
       psc_config {
         psc_enabled               = true
-        allowed_consumer_projects = [var.project_id]
+        allowed_consumer_projects = [var.project_id, var.host_project_id]  # Allow both service and host projects
       }
     }
 
