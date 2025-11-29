@@ -41,15 +41,15 @@ resource "google_folder" "env_prod" {
    project_name   = "network-hub-np-prj"
  }
 
- module "network_spoke_np" {
-   source = "./network-spoke-np"
-
-   org_id         = var.org_id
-   folder_name    = google_folder.platform.name
-   billing_account = var.billing_account
-   project_id     = "network-spoke-np-prj"
-   project_name   = "network-spoke-np-prj"
- }
+# module "network_spoke_np" {
+#   source = "./network-spoke-np"
+#
+#   org_id         = var.org_id
+#   folder_name    = google_folder.platform.name
+#   billing_account = var.billing_account
+#   project_id     = "network-spoke-np-prj"
+#   project_name   = "network-spoke-np-prj"
+# }
 
  # The following platform projects are temporarily disabled due to project quota limits:
  # module "network_hub_prod" {
