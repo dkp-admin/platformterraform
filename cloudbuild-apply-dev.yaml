@@ -92,7 +92,7 @@ steps:
       - 'tfplan'
 
 substitutions:
-  _TARGET_DIR: 'bootstrap'   # override per trigger: bootstrap, dev, prod
+  _TARGET_DIR: 'dev'   # override per trigger: bootstrap, dev, prod
   _MODE: 'apply'
 
 options:
