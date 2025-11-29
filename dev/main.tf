@@ -52,6 +52,47 @@ resource "google_compute_shared_vpc_service_project" "this" {
   ]
 }
 
+# Get the project number for the service project
+data "google_project" "service_project" {
+  project_id = google_project.this.project_id
+}
+
+# Grant GKE service account permissions on the host project's subnet
+# The GKE service account is: service-<PROJECT_NUMBER>@container-engine-robot.iam.gserviceaccount.com
+resource "google_project_iam_member" "gke_host_service_agent" {
+  project = data.terraform_remote_state.bootstrap.outputs.network_hub_np_project_id
+  role    = "roles/container.hostServiceAgentUser"
+  member  = "serviceAccount:service-${data.google_project.service_project.number}@container-engine-robot.iam.gserviceaccount.com"
+
+  depends_on = [
+    google_project_service.core["container.googleapis.com"],
+    time_sleep.wait_for_apis
+  ]
+}
+
+# Grant compute network user on the host project for GKE
+resource "google_project_iam_member" "gke_network_user" {
+  project = data.terraform_remote_state.bootstrap.outputs.network_hub_np_project_id
+  role    = "roles/compute.networkUser"
+  member  = "serviceAccount:service-${data.google_project.service_project.number}@container-engine-robot.iam.gserviceaccount.com"
+
+  depends_on = [
+    google_project_service.core["container.googleapis.com"],
+    time_sleep.wait_for_apis
+  ]
+}
+
+# Also grant network user to the Google APIs service account
+resource "google_project_iam_member" "google_apis_network_user" {
+  project = data.terraform_remote_state.bootstrap.outputs.network_hub_np_project_id
+  role    = "roles/compute.networkUser"
+  member  = "serviceAccount:${data.google_project.service_project.number}@cloudservices.gserviceaccount.com"
+
+  depends_on = [
+    time_sleep.wait_for_apis
+  ]
+}
+
 module "gke_autopilot" {
   source = "../modules/gke-autopilot"
 
@@ -76,6 +117,9 @@ module "gke_autopilot" {
 
   depends_on = [
     google_compute_shared_vpc_service_project.this,
+    google_project_iam_member.gke_host_service_agent,
+    google_project_iam_member.gke_network_user,
+    google_project_iam_member.google_apis_network_user,
     time_sleep.wait_for_apis
   ]
 }
