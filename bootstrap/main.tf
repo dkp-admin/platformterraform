@@ -37,8 +37,8 @@ resource "google_folder" "env_prod" {
    billing_account = var.billing_account
    region         = "us-central1"
    environment    = "np"
-   project_id     = "network-hub-np"
-   project_name   = "Network Hub NP"
+   project_id     = "network-hub-np-prj"
+   project_name   = "network-hub-np-prj"
  }
 
  module "network_spoke_np" {
@@ -47,8 +47,8 @@ resource "google_folder" "env_prod" {
    org_id         = var.org_id
    folder_name    = google_folder.platform.name
    billing_account = var.billing_account
-   project_id     = "network-spoke-np"
-   project_name   = "Network Spoke NP"
+   project_id     = "network-spoke-np-prj"
+   project_name   = "network-spoke-np-prj"
  }
 
  # The following platform projects are temporarily disabled due to project quota limits:
