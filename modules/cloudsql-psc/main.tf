@@ -42,7 +42,7 @@ resource "google_sql_database_instance" "main" {
     insights_config {
       query_insights_enabled  = true
       record_application_tags = true
-      record_client_address   = true
+      record_client_address   = false  # PSC does not support record_client_address
     }
 
     database_flags {
