@@ -7,10 +7,20 @@ resource "google_project" "this" {
 
 resource "google_project_service" "core" {
   for_each = toset([
+    # Core APIs
     "compute.googleapis.com",
     "logging.googleapis.com",
     "monitoring.googleapis.com",
     "cloudresourcemanager.googleapis.com",
+    # GKE APIs
+    "container.googleapis.com",
+    # Cloud SQL APIs
+    "sqladmin.googleapis.com",
+    "servicenetworking.googleapis.com",
+    # Secret Manager API
+    "secretmanager.googleapis.com",
+    # DNS API
+    "dns.googleapis.com",
   ])
 
   project = google_project.this.project_id
