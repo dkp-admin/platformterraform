@@ -91,18 +91,20 @@ resource "google_secret_manager_secret_version" "db_password" {
   secret_data = random_password.db_password.result
 }
 
+# PSC endpoint address - must be in the host project's network/subnet
 resource "google_compute_address" "psc_endpoint" {
   name         = "${var.environment}-sql-psc-endpoint"
-  project      = var.project_id
+  project      = var.host_project_id  # Use host project for Shared VPC
   region       = var.region
   address_type = "INTERNAL"
-  subnetwork   = null
+  subnetwork   = "projects/${var.host_project_id}/regions/${var.region}/subnetworks/${var.subnet_name}"
   purpose      = "GCE_ENDPOINT"
 }
 
+# PSC forwarding rule - must be in the host project
 resource "google_compute_forwarding_rule" "psc_forwarding_rule" {
   name                  = "${var.environment}-sql-psc-forwarding-rule"
-  project               = var.project_id
+  project               = var.host_project_id  # Use host project for Shared VPC
   region                = var.region
   network               = var.network_id
   ip_address            = google_compute_address.psc_endpoint.id
@@ -110,6 +112,7 @@ resource "google_compute_forwarding_rule" "psc_forwarding_rule" {
   target                = google_sql_database_instance.main.psc_service_attachment_link
 }
 
+# Private DNS zone for Cloud SQL PSC
 resource "google_dns_managed_zone" "sql_psc" {
   name        = "${var.environment}-sql-psc-zone"
   project     = var.project_id
@@ -124,8 +127,9 @@ resource "google_dns_managed_zone" "sql_psc" {
   }
 }
 
+# DNS record for Cloud SQL PSC - fix the trailing dot issue
 resource "google_dns_record_set" "sql_psc" {
-  name         = "${google_sql_database_instance.main.dns_name}."
+  name         = google_sql_database_instance.main.dns_name  # Remove extra dot
   project      = var.project_id
   managed_zone = google_dns_managed_zone.sql_psc.name
   type         = "A"

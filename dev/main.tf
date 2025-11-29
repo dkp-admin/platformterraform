@@ -127,16 +127,18 @@ module "gke_autopilot" {
 module "cloudsql_psc" {
   source = "../modules/cloudsql-psc"
 
-  project_id   = google_project.this.project_id
-  region       = var.region
-  environment  = var.environment
-  network_id   = data.terraform_remote_state.bootstrap.outputs.network_hub_np_network_id
+  project_id      = google_project.this.project_id
+  host_project_id = data.terraform_remote_state.bootstrap.outputs.network_hub_np_project_id
+  region          = var.region
+  environment     = var.environment
+  network_id      = data.terraform_remote_state.bootstrap.outputs.network_hub_np_network_id
+  subnet_name     = data.terraform_remote_state.bootstrap.outputs.network_hub_np_subnet_name
 
-  database_version = "POSTGRES_15"
-  tier             = "db-f1-micro"
-  disk_size        = 10
+  database_version  = "POSTGRES_15"
+  tier              = "db-f1-micro"
+  disk_size         = 10
   availability_type = "ZONAL"
-  database_name    = "app_database"
+  database_name     = "app_database"
 
   depends_on = [
     google_compute_shared_vpc_service_project.this,

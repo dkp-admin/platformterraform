@@ -1,5 +1,10 @@
 variable "project_id" {
-  description = "GCP Project ID"
+  description = "GCP Project ID (service project)"
+  type        = string
+}
+
+variable "host_project_id" {
+  description = "Shared VPC host project ID"
   type        = string
 }
 
@@ -14,7 +19,12 @@ variable "environment" {
 }
 
 variable "network_id" {
-  description = "VPC network ID"
+  description = "VPC network ID (full path)"
+  type        = string
+}
+
+variable "subnet_name" {
+  description = "Subnet name in host project"
   type        = string
 }
 
