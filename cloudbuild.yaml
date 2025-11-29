@@ -46,7 +46,7 @@ steps:
         echo "Branch: $BRANCH_NAME"
         echo "Commit: $COMMIT_SHA"
         echo "Project ID: $PROJECT_ID"
-        echo "State bucket: ${PROJECT_ID}-terraform-state"
+        echo "State bucket: bootstrap-tijarah-terraform-state"
         echo "Backend prefix: terraform/state/${_TARGET_DIR}"
 
   # 5. Terraform init
@@ -55,7 +55,7 @@ steps:
     dir: '${_TARGET_DIR}'
     args:
       - 'init'
-      - '-backend-config=bucket=${PROJECT_ID}-terraform-state'
+      - '-backend-config=bucket=bootstrap-tijarah-terraform-state'
       - '-backend-config=prefix=terraform/state/${_TARGET_DIR}'
 
   # 6. Terraform validate
