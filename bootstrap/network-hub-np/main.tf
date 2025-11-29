@@ -17,8 +17,19 @@ resource "google_project_service" "core" {
   service = each.value
 }
 
+# Add a time delay to ensure APIs are fully propagated
+resource "time_sleep" "wait_for_apis" {
+  depends_on = [google_project_service.core]
+
+  create_duration = "60s"
+}
+
 resource "google_compute_shared_vpc_host_project" "host" {
   project = google_project.this.project_id
+
+  depends_on = [
+    time_sleep.wait_for_apis
+  ]
 }
 
 module "networking" {
@@ -32,6 +43,10 @@ module "networking" {
   vpc_cidr      = "10.0.0.0/20"
   pods_cidr     = "10.0.16.0/20"
   services_cidr = "10.0.32.0/20"
+
+  depends_on = [
+    time_sleep.wait_for_apis
+  ]
 }
 
 output "project_id" {
