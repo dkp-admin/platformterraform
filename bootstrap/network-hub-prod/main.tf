@@ -23,7 +23,7 @@ resource "google_compute_shared_vpc_host_project" "host" {
 }
 
 module "networking" {
-  source = "../modules/networking"
+  source = "../../modules/networking"
 
   project_id  = google_project.this.project_id
   region      = var.region
