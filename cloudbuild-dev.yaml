@@ -1,0 +1,92 @@
+steps:
+  # 1. Optional: setup git credentials (adjust/remove if not needed)
+  - id: 'setup-git'
+    name: 'gcr.io/cloud-builders/git'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Repository: $REPO_NAME, Branch: $BRANCH_NAME"
+        git config --global credential.'https://github.com'.helper store || true
+
+  # 2. Show current commit
+  - id: 'show-commit'
+    name: 'gcr.io/cloud-builders/git'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Current commit: $COMMIT_SHA"
+        git status
+
+  # 3. Path filter: only continue if files under the target dir changed
+  - id: 'path-filter'
+    name: 'gcr.io/cloud-builders/git'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Checking changes for ${_TARGET_DIR}/"
+        if git diff --name-only "$COMMIT_SHA^" "$COMMIT_SHA" | grep "^${_TARGET_DIR}/" >/dev/null; then
+          echo "Changes detected in ${_TARGET_DIR}/, continuing."
+        else
+          echo "No relevant changes in ${_TARGET_DIR}/, skipping Terraform."
+          exit 0
+        fi
+
+  # 4. Echo important variables
+  - id: 'echo-vars'
+    name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Environment directory: ${_TARGET_DIR}"
+        echo "Mode: ${_MODE}"
+        echo "Branch: $BRANCH_NAME"
+        echo "Commit: $COMMIT_SHA"
+        echo "Project ID: $PROJECT_ID"
+        echo "State bucket: bootstrap-tijarah-terraform-state"
+        echo "Backend prefix: terraform/state/${_TARGET_DIR}"
+
+  # 5. Terraform init
+  - id: 'terraform-init'
+    name: 'hashicorp/terraform:1.6'
+    dir: '${_TARGET_DIR}'
+    args:
+      - 'init'
+      - '-backend-config=bucket=bootstrap-tijarah-terraform-state'
+      - '-backend-config=prefix=terraform/state/${_TARGET_DIR}'
+
+  # 6. Terraform validate
+  - id: 'terraform-validate'
+    name: 'hashicorp/terraform:1.6'
+    dir: '${_TARGET_DIR}'
+    args:
+      - 'validate'
+
+  # 7. Terraform plan
+  - id: 'terraform-plan'
+    name: 'hashicorp/terraform:1.6'
+    dir: '${_TARGET_DIR}'
+    args:
+      - 'plan'
+      - '-out=tfplan'
+
+  # 8. Terraform show (for plan inspection/auditing)
+  - id: 'terraform-show'
+    name: 'hashicorp/terraform:1.6'
+    dir: '${_TARGET_DIR}'
+    args:
+      - 'show'
+      - '-no-color'
+      - 'tfplan'
+
+substitutions:
+  _TARGET_DIR: 'bootstrap'   # override per trigger: bootstrap, dev, prod
+  _MODE: 'plan'              # override per trigger: plan or apply
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: '3600s'
