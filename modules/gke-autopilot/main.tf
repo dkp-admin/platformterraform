@@ -5,8 +5,9 @@ resource "google_container_cluster" "autopilot" {
 
   enable_autopilot = true
 
-  network    = var.network_name
-  subnetwork = var.subnet_name
+  # For Shared VPC, use full resource paths
+  network    = "projects/${var.host_project_id}/global/networks/${var.network_name}"
+  subnetwork = "projects/${var.host_project_id}/regions/${var.region}/subnetworks/${var.subnet_name}"
 
   ip_allocation_policy {
     cluster_secondary_range_name  = var.pods_range_name

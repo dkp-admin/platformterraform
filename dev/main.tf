@@ -55,9 +55,10 @@ resource "google_compute_shared_vpc_service_project" "this" {
 module "gke_autopilot" {
   source = "../modules/gke-autopilot"
 
-  project_id  = google_project.this.project_id
-  region      = var.region
-  environment = var.environment
+  project_id      = google_project.this.project_id
+  host_project_id = data.terraform_remote_state.bootstrap.outputs.network_hub_np_project_id
+  region          = var.region
+  environment     = var.environment
 
   network_name        = data.terraform_remote_state.bootstrap.outputs.network_hub_np_network_name
   subnet_name         = data.terraform_remote_state.bootstrap.outputs.network_hub_np_subnet_name
