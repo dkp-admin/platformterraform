@@ -82,9 +82,18 @@ steps:
       - '-no-color'
       - 'tfplan'
 
+  # 9. Terraform apply (always, since this file is only used for apply triggers)
+  - id: 'terraform-apply'
+    name: 'hashicorp/terraform:1.6'
+    dir: '${_TARGET_DIR}'
+    args:
+      - 'apply'
+      - '-auto-approve'
+      - 'tfplan'
+
 substitutions:
   _TARGET_DIR: 'bootstrap'   # override per trigger: bootstrap, dev, prod
-  _MODE: 'plan'              # override per trigger: plan or apply
+  _MODE: 'apply'
 
 options:
   logging: CLOUD_LOGGING_ONLY
