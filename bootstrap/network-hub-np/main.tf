@@ -1,7 +1,6 @@
 resource "google_project" "this" {
   project_id      = var.project_id
   name            = var.project_name
-  org_id          = var.org_id
   billing_account = var.billing_account
   folder_id       = regex("folders/(.+)$", var.folder_name)[0]
 }
