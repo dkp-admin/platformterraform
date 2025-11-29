@@ -1,0 +1,8 @@
+org_id          = "419808609549"
+# Replace with the numeric ID of the env-tijarah/prod folder created by bootstrap
+env_folder_id   = "REPLACE_WITH_ENV_PROD_FOLDER_ID"
+billing_account = "012667-AC3BD5-CD5FD3"
+region          = "us-central1"
+environment     = "prod"
+project_id      = "prod-tijarah"
+project_name    = "Prod Tijarah"
