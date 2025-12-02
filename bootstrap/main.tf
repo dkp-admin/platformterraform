@@ -74,15 +74,15 @@ resource "google_folder" "env_prod" {
  #   project_name   = "Network Spoke Prod"
  # }
  #
- # module "security" {
- #   source = "./security-tijarah"
- #
- #   org_id         = var.org_id
- #   folder_name    = google_folder.platform.name
- #   billing_account = var.billing_account
- #   project_id     = "security-tijarah"
- #   project_name   = "Security Tijarah"
- # }
+  module "security" {
+    source = "./security-tijarah"
+ 
+    org_id         = var.org_id
+    folder_name    = google_folder.platform.name
+    billing_account = var.billing_account
+    project_id     = "security-tijarah"
+    project_name   = "Security Tijarah"
+  }
  #
  # module "logging" {
  #   source = "./logging-tijarah"
